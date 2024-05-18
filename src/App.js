@@ -8,6 +8,7 @@ import {
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AddIcon from '@mui/icons-material/Add';
+import SearchIcon from '@mui/icons-material/Search';
 
 const drawerWidth = 240;
 const { BaseLayer } = LayersControl;
@@ -17,6 +18,8 @@ function App() {
   const [openDialog, setOpenDialog] = useState(false);
   const [formData, setFormData] = useState({ phone: '', address: '' });
   const [mapType, setMapType] = useState('streets');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedMenuItem, setSelectedMenuItem] = useState('Map');
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -45,33 +48,48 @@ function App() {
     setMapType(event.target.checked ? 'satellite' : 'streets');
   };
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    alert(`Searching for: ${searchQuery}`);
+    // Implement actual search functionality here
+  };
+
+  const handleMenuItemClick = (item) => {
+    setSelectedMenuItem(item);
+  };
+
   const drawer = (
-    <div>
+    <div style={{ width: drawerWidth }}>
       <Toolbar>
         <Avatar alt="User Name" src="/static/images/avatar/1.jpg" sx={{ mr: 2 }} />
         <Typography variant="h6">User Name</Typography>
       </Toolbar>
       <Divider />
       <List>
-        <ListItem button>
-          <ListItemText primary="Profile" />
+        <ListItem button onClick={() => handleMenuItemClick('Profile')}>
+          <ListItemText primary="Near Rise " />
         </ListItem>
-        <ListItem button>
-          <ListItemText primary="Body Section" />
+        <ListItem button onClick={() => handleMenuItemClick('Body Section')}>
+          <ListItemText primary="Recomend" />
         </ListItem>
-        <ListItem button>
+        <ListItem button onClick={() => handleMenuItemClick('Menu Item 2')}>
           <ListItemText primary="Menu Item 2" />
         </ListItem>
       </List>
       <Box sx={{ flexGrow: 1 }} />
       <Divider />
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ p: 2, position: 'absolute', bottom: 0, width: '100%' }}>
         <Button variant="contained" color="primary" startIcon={<LogoutIcon />}>
           Logout
         </Button>
       </Box>
     </div>
   );
+  
 
   return (
     <div style={{ display: 'flex' }}>
@@ -87,9 +105,22 @@ function App() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Ride Hailing App
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+            Yene Ride
           </Typography>
+          <form onSubmit={handleSearchSubmit} style={{ display: 'flex', alignItems: 'center' }}>
+            <TextField
+              variant="outlined"
+              size="small"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              sx={{ backgroundColor: 'white', borderRadius: 1, mr: 2 }}
+            />
+            <IconButton type="submit" color="inherit">
+              <SearchIcon />
+            </IconButton>
+          </form>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -124,27 +155,44 @@ function App() {
       </Drawer>
       <main style={{ flexGrow: 1, padding: '16px' }}>
         <Toolbar />
-        <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: '600px', width: '100%' }}>
-          <LayersControl position="topright">
-            <BaseLayer checked={mapType === 'streets'} name="Streets">
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              />
-            </BaseLayer>
-            <BaseLayer checked={mapType === 'satellite'} name="Satellite">
-              <TileLayer
-                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                attribution='&copy; Esri'
-              />
-            </BaseLayer>
-          </LayersControl>
-          <Marker position={[8.567, 37.09]}>
-            <Popup>
-              A pretty CSS3 popup. <br /> Easily customizable.
-            </Popup>
-          </Marker>
-        </MapContainer>
+        {selectedMenuItem === 'Map' && (
+          <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: '600px', width: '100%' }}>
+            <LayersControl position="topright">
+              <BaseLayer checked={mapType === 'streets'} name="Streets">
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+              </BaseLayer>
+              <BaseLayer checked={mapType === 'satellite'} name="Satellite">
+                <TileLayer
+                  url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.opentopomap.org/">OpenTopoMap</a>'
+                />
+              </BaseLayer>
+            </LayersControl>
+            <Marker position={[51.505, -0.09]}>
+              <Popup>
+                A pretty CSS3 popup. <br /> Easily customizable.
+              </Popup>
+            </Marker>
+          </MapContainer>
+        )}
+        {selectedMenuItem === 'Profile' && (
+          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+            <Typography variant="h4">Near Rides</Typography>
+          </Box>
+        )}
+        {selectedMenuItem === 'Body Section' && (
+          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+            <Typography variant="h4">History</Typography>
+          </Box>
+        )}
+        {selectedMenuItem === 'Menu Item 2' && (
+          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+            <Typography variant="h4">Ride Sharing</Typography>
+          </Box>
+        )}
         <Box sx={{ position: 'fixed', bottom: 16, right: 16 }}>
           <FormControlLabel
             control={<Switch checked={mapType === 'satellite'} onChange={handleMapTypeChange} />}
