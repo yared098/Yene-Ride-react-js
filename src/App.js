@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, LayersControl } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, LayersControl, Polyline } from 'react-leaflet'; // Import Polyline
 import 'leaflet/dist/leaflet.css';
 import {
   CssBaseline, Drawer, AppBar, Toolbar, IconButton, Typography, List, ListItem, ListItemText, Divider,
@@ -20,6 +20,7 @@ function App() {
   const [mapType, setMapType] = useState('streets');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMenuItem, setSelectedMenuItem] = useState('Map');
+  const [points, setPoints] = useState([[51.505, -0.09], [51.507, -0.08]]); // Example points
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -71,10 +72,10 @@ function App() {
       <Divider />
       <List>
         <ListItem button onClick={() => handleMenuItemClick('Profile')}>
-          <ListItemText primary="Near Rise " />
+          <ListItemText primary="Near Rides " />
         </ListItem>
         <ListItem button onClick={() => handleMenuItemClick('Body Section')}>
-          <ListItemText primary="Recomend" />
+          <ListItemText primary="Recommended" />
         </ListItem>
         <ListItem button onClick={() => handleMenuItemClick('Menu Item 2')}>
           <ListItemText primary="Menu Item 2" />
@@ -176,6 +177,8 @@ function App() {
                 A pretty CSS3 popup. <br /> Easily customizable.
               </Popup>
             </Marker>
+            {/* Polyline */}
+            <Polyline positions={points} color="red" />
           </MapContainer>
         )}
         {selectedMenuItem === 'Profile' && (
@@ -184,61 +187,62 @@ function App() {
           </Box>
         )}
         {selectedMenuItem === 'Body Section' && (
-          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-            <Typography variant="h4">History</Typography>
-          </Box>
-        )}
-        {selectedMenuItem === 'Menu Item 2' && (
-          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-            <Typography variant="h4">Ride Sharing</Typography>
-          </Box>
-        )}
-        <Box sx={{ position: 'fixed', bottom: 16, right: 16 }}>
-          <FormControlLabel
-            control={<Switch checked={mapType === 'satellite'} onChange={handleMapTypeChange} />}
-            label="Satellite View"
-          />
-          <Button variant="contained" color="primary" onClick={handleOpenDialog} startIcon={<AddIcon />}>
-            Add Address
-          </Button>
+          <Box display
+          ="flex" justifyContent="center" alignItems="center" height="100%">
+          <Typography variant="h4">History</Typography>
         </Box>
-        <Dialog open={openDialog} onClose={handleCloseDialog}>
-          <DialogTitle>Add Address</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="phone"
-              name="phone"
-              label="Phone"
-              type="text"
-              fullWidth
-              value={formData.phone}
-              onChange={handleInputChange}
-            />
-            <TextField
-              margin="dense"
-              id="address"
-              name="address"
-              label="Address"
-              type="text"
-              fullWidth
-              value={formData.address}
-              onChange={handleInputChange}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit} color="primary">
-              Submit
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </main>
-    </div>
-  );
+      )}
+      {selectedMenuItem === 'Menu Item 2' && (
+        <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+          <Typography variant="h4">Ride Sharing</Typography>
+        </Box>
+      )}
+      <Box sx={{ position: 'fixed', bottom: 16, right: 16 }}>
+        <FormControlLabel
+          control={<Switch checked={mapType === 'satellite'} onChange={handleMapTypeChange} />}
+          label="Satellite View"
+        />
+        <Button variant="contained" color="primary" onClick={handleOpenDialog} startIcon={<AddIcon />}>
+          Add Address
+        </Button>
+      </Box>
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Add Address</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="phone"
+            name="phone"
+            label="Phone"
+            type="text"
+            fullWidth
+            value={formData.phone}
+            onChange={handleInputChange}
+          />
+          <TextField
+            margin="dense"
+            id="address"
+            name="address"
+            label="Address"
+            type="text"
+            fullWidth
+            value={formData.address}
+            onChange={handleInputChange}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit} color="primary">
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </main>
+  </div>
+);
 }
 
 export default App;
