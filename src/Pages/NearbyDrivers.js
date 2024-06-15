@@ -82,17 +82,18 @@ const NearbyDrivers = () => {
     }
   };
 
-  const handleCloseRequestDialog = () => {
+  const handleCloseRequestDialog = (data) => {
     setRequestDialogOpen(false);
+   
   };
 
   return (
     <div>
-      <h1>Nearby Drivers</h1>
+      {/* <h1>Nearby Drivers</h1> */}
       {locationError && <p>{locationError}</p>}
       {userLocation ? (
         <div>
-          <p>Your location: {userLocation.latitude}, {userLocation.longitude}</p>
+          {/* <p>Your location: {userLocation.latitude}, {userLocation.longitude}</p> */}
           <List>
             {drivers.map(driver => (
               <ListItem key={driver.id}>

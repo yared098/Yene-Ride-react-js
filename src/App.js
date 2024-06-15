@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, LayersControl, Polyline } from 'react-leaflet'; // Import Polyline
+import React, { useState, useRef, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, LayersControl, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
   CssBaseline, Drawer, AppBar, Toolbar, IconButton, Typography, List, ListItem, ListItemText, Divider,
@@ -9,6 +9,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import { useTranslation } from 'react-i18next';
+import NearbyDrivers from './Pages/NearbyDrivers'; // Import NearbyDrivers component
+import './i18n'; // Make sure to import the i18n configuration
 
 const drawerWidth = 240;
 const { BaseLayer } = LayersControl;
@@ -20,7 +25,14 @@ function App() {
   const [mapType, setMapType] = useState('streets');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMenuItem, setSelectedMenuItem] = useState('Map');
-  const [points, setPoints] = useState([[51.505, -0.09], [51.507, -0.08]]); // Example points
+  const [points, setPoints] = useState([[51.505, -0.09], [51.507, -0.08]]);
+  const drawerRef = useRef(null);
+
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = (event) => {
+    i18n.changeLanguage(event.target.value);
+  };
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -40,7 +52,6 @@ function App() {
   };
 
   const handleSubmit = () => {
-    // Handle form submission logic here
     console.log(formData);
     handleCloseDialog();
   };
@@ -56,41 +67,41 @@ function App() {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     alert(`Searching for: ${searchQuery}`);
-    // Implement actual search functionality here
   };
 
   const handleMenuItemClick = (item) => {
     setSelectedMenuItem(item);
+    setMobileOpen(false); // Close drawer after selecting a menu item
   };
 
   const drawer = (
-    <div style={{ width: drawerWidth }}>
+    <div style={{ width: drawerWidth }} ref={drawerRef}>
       <Toolbar>
         <Avatar alt="User Name" src="/static/images/avatar/1.jpg" sx={{ mr: 2 }} />
         <Typography variant="h6">User Name</Typography>
       </Toolbar>
       <Divider />
       <List>
-        <ListItem button onClick={() => handleMenuItemClick('Profile')}>
-          <ListItemText primary="Near Rides " />
+        <ListItem button onClick={() => handleMenuItemClick('near ride')}>
+          <ListItemText primary={t('near-ride')} />
         </ListItem>
         <ListItem button onClick={() => handleMenuItemClick('Body Section')}>
-          <ListItemText primary="Recommended" />
+          <ListItemText primary={t("recommanded")} />
         </ListItem>
         <ListItem button onClick={() => handleMenuItemClick('Menu Item 2')}>
-          <ListItemText primary="Menu Item 2" />
+          <ListItemText primary={t("history")} />
         </ListItem>
       </List>
       <Box sx={{ flexGrow: 1 }} />
       <Divider />
       <Box sx={{ p: 2, position: 'absolute', bottom: 0, width: '100%' }}>
         <Button variant="contained" color="primary" startIcon={<LogoutIcon />}>
-          Logout
+          
+          {t('logout')}
         </Button>
       </Box>
     </div>
   );
-  
 
   return (
     <div style={{ display: 'flex' }}>
@@ -107,13 +118,29 @@ function App() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Yene Ride
+          {t('welcome')} Yene
           </Typography>
-          <form onSubmit={handleSearchSubmit} style={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ minWidth: 120, ml: 2 }}>
+            <Select
+              labelId="language-select-label"
+              id="language-select"
+              value={i18n.language}
+              onChange={changeLanguage}
+              variant="outlined"
+              sx={{ color: 'white', borderColor: 'white' }}
+            >
+              <MenuItem value="en">English</MenuItem>
+              <MenuItem value="am">Amharic</MenuItem>
+              <MenuItem value="om">Oromo</MenuItem>
+              <MenuItem value="sm">somali</MenuItem>
+              <MenuItem value="tg">Tigregna</MenuItem>
+            </Select>
+          </Box>
+          <form onSubmit={handleSearchSubmit} style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
             <TextField
               variant="outlined"
               size="small"
-              placeholder="Search..."
+              placeholder={t("search")}
               value={searchQuery}
               onChange={handleSearchChange}
               sx={{ backgroundColor: 'white', borderRadius: 1, mr: 2 }}
@@ -129,7 +156,7 @@ function App() {
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
+          keepMounted: true,
         }}
         sx={{
           display: { xs: 'block', sm: 'none' },
@@ -177,72 +204,68 @@ function App() {
                 A pretty CSS3 popup. <br /> Easily customizable.
               </Popup>
             </Marker>
-            {/* Polyline */}
             <Polyline positions={points} color="red" />
           </MapContainer>
         )}
-        {selectedMenuItem === 'Profile' && (
-          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-            <Typography variant="h4">Near Rides</Typography>
-          </Box>
+        {selectedMenuItem === 'near ride' && (
+          <NearbyDrivers />
         )}
         {selectedMenuItem === 'Body Section' && (
-          <Box display
-          ="flex" justifyContent="center" alignItems="center" height="100%">
-          <Typography variant="h4">History</Typography>
-        </Box>
-      )}
-      {selectedMenuItem === 'Menu Item 2' && (
-        <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-          <Typography variant="h4">Ride Sharing</Typography>
-        </Box>
-      )}
-      <Box sx={{ position: 'fixed', bottom: 16, right: 16 }}>
-        <FormControlLabel
-          control={<Switch checked={mapType === 'satellite'} onChange={handleMapTypeChange} />}
-          label="Satellite View"
-        />
-        <Button variant="contained" color="primary" onClick={handleOpenDialog} startIcon={<AddIcon />}>
-          Add Address
-        </Button>
-      </Box>
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Add Address</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="phone"
-            name="phone"
-            label="Phone"
-            type="text"
-            fullWidth
-            value={formData.phone}
-            onChange={handleInputChange}
+          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+            <Typography variant="h4">History</Typography>
+          </Box>
+        )}
+        {selectedMenuItem === 'Menu Item 2' && (
+          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+            <Typography variant="h4">Ride Sharing</Typography>
+          </Box>
+        )}
+        <Box sx={{ position: 'fixed', bottom: 16, right: 16 }}>
+          <FormControlLabel
+            control={<Switch checked={mapType === 'satellite'} onChange={handleMapTypeChange} />}
+            label="Satellite View"
           />
-          <TextField
-            margin="dense"
-            id="address"
-            name="address"
-            label="Address"
-            type="text"
-            fullWidth
-            value={formData.address}
-            onChange={handleInputChange}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
-            Cancel
+          <Button variant="contained" color="primary" onClick={handleOpenDialog} startIcon={<AddIcon />}>
+            Add Address
           </Button>
-          <Button onClick={handleSubmit} color="primary">
-            Submit
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </main>
-  </div>
-);
+        </Box>
+        <Dialog open={openDialog} onClose={handleCloseDialog}>
+          <DialogTitle>Add Address</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="phone"
+              name="phone"
+              label="Phone"
+              type="text"
+              fullWidth
+              value={formData.phone}
+              onChange={handleInputChange}
+            />
+            <TextField
+              margin="dense"
+              id="address"
+              name="address"
+              label="Address"
+              type="text"
+              fullWidth
+              value={formData.address}
+              onChange={handleInputChange}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} color="primary">
+              Submit
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </main>
+    </div>
+  );
 }
 
 export default App;
